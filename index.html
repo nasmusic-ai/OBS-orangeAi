@@ -3,100 +3,46 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Mini Streamer v2</title>
+  <title>Mini Streamer v3</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
   <style>
-    :root { 
-      --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; --highlight: #7c3aed;
-      --font: 'Inter', sans-serif;
-    }
-    [data-theme="dark"]   { --bg:#000; --card:#111; --text:#eee; --accent:#0f0; --border:#222; }
-    [data-theme="light"]  { --bg:#fff; --card:#f5f5f5; --text:#333; --accent:#007bff; --border:#ddd; }
-    [data-theme="neon"]   { --bg:#000; --card:#111; --text:#fff; --accent:#ff0; --border:#0ff; text-shadow:0 0 5px #0ff; }
-    [data-theme="pastel"] { --bg:#f0f4f8; --card:#fff; --text:#555; --accent:#a8dadc; --border:#e3e3e3; }
+    :root { --bg:#000; --card:#111; --text:#eee; --accent:#ff9500; --border:#30363d; }
+    [data-theme="light"] { --bg:#fff; --card:#f5f5f5; --text:#333; --accent:#007bff; --border:#ddd; }
 
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--bg); color:var(--text); font-family:var(--font); overflow:hidden; height:100vh; display:flex; flex-direction:column; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow:hidden; height:100vh; display:flex; flex-direction:column; }
 
-    #hamburger { position:fixed; top:12px; left:12px; z-index:1000; width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius:50%; display:grid; place-items:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+    #hamburger { position:fixed; top:12px; left:12px; z-index:1000; width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius:50%; display:grid; place-items:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
     #hamburger svg { width:28px; height:28px; fill:var(--text); }
 
-    #overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); opacity:0; pointer-events:none; transition:opacity .3s; z-index:998; }
+    #overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); opacity:0; pointer-events:none; transition:opacity .3s; z-index:998; }
     #overlay.open { opacity:1; pointer-events:all; }
 
-    #sidePanel { position:fixed; top:0; left:-360px; width:340px; max-width:90vw; height:100%; background:var(--card); border-right:1px solid var(--border); transition:left .3s ease; z-index:999; padding:16px; overflow-y:auto; }
+    #sidePanel { position:fixed; top:0; left:-360px; width:340px; max-width:90vw; height:100%; background:var(--card); border-right:1px solid var(--border); transition:left .3s; z-index:999; padding:16px; overflow-y:auto; }
     #sidePanel.open { left:0; }
 
     .logo-header { text-align:center; padding:20px 0 30px; border-bottom:1px solid var(--border); margin-bottom:20px; }
-    .logo-header img { width:90px; height:90px; }
-    .logo-header h1 { margin-top:12px; font-size:1.2em; background:linear-gradient(90deg,#ff9500,#ff5e00); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .logo-header img { width:90px; height:90px; border-radius:50%; }
+    .logo-header h1 { margin-top:12px; font-size:1.3em; background:linear-gradient(90deg,#ff9500,#ff5e00); -webkit-background-clip:text; color:transparent; }
 
     .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
-    h2 { font-size:1.1em; margin-bottom:12px; opacity:0.9; }
+    h2 { font-size:1.1em; margin-bottom:12px; opacity:0.9; color:var(--accent); }
     .row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px; align-items:center; }
-    button, select, input[type=text] { background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 14px; min-height:48px; cursor:pointer; font-size:1em; }
+    button, select { background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 14px; min-height:48px; cursor:pointer; font-size:1em; }
     button:hover { background:var(--border); }
     .small { font-size:0.85em; opacity:0.8; }
 
     #previewWrap { flex:1; position:relative; background:#000; overflow:hidden; }
-    #preview { width:100%; height:100%; object-fit:contain; touch-action:none; background:#000; }
-    #avatarFrame { position:absolute; top:0; left:0; width:100%; height:100%; border:0; pointer-events:none; z-index:10; }
+    #preview { width:100%; height:100%; touch-action:none; background:#000; display:block; }
 
     #bottomBar { height:70px; background:var(--card); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:12px; flex-wrap:wrap; }
-    #bottomBar button { flex:1; max-width:160px; height:50px; font-weight:700; font-size:1.1em; }
-    #startRec { background:linear-gradient(90deg,#ff5e00,#ff9500) !important; color:white !important; }
+    #startRec { background:linear-gradient(90deg,#ff5e00,#ff9500); color:white; font-weight:700; }
 
     .layers { max-height:40vh; overflow-y:auto; }
-    .layer { display:grid; grid-template-columns:auto 1fr auto auto auto auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9em; }
+    .layer { display:grid; grid-template-columns:auto 1fr auto auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9em; }
 
-    #notif { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--card); border:1px solid var(--border); padding:20px 40px; border-radius:12px; display:none; z-index:2000; text-align:center; font-weight:bold; }
-  
-  <!-- Permission Warning Popup -->
-<div id="permWarning" style="
-  position:fixed; inset:0; background:rgba(0,0,0,0.92); 
-  display:none; flex-direction:column; justify-content:center; 
-  align-items:center; z-index:9999; padding:20px; text-align:center;
-  font-family:Inter,Arial,sans-serif; color:#eee;
-">
-  <div style="
-    background:#161b22; border:1px solid #30363d; border-radius:16px; 
-    padding:32px 24px; max-width:420px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,0.6);
-  ">
-    <div style="width:80px; height:80px; background:#ff9500; border-radius:50%; 
-      margin:0 auto 20px; display:grid; place-items:center; font-size:40px;">
-      Warning
-    </div>
-    
-    <h2 style="font-size:1.4em; margin:16px 0; color:#ff9500;">Allow Screen & Microphone Access?</h2>
-    
-    <p style="line-height:1.6; margin:20px 0; opacity:0.9; font-size:0.98em;">
-      Mini Streamer needs permission to:
-      <br><br>
-      • Capture your <strong>screen</strong> (for sharing)<br>
-      • Access your <strong>camera & microphone</strong> (for webcam/avatar)<br>
-      • Record <strong>audio</strong> from apps/tabs
-      <br><br>
-      <strong style="color:#ff6b6b;">Sensitive info like passwords will be visible if shown on screen!</strong>
-    </p>
-
-    <div style="display:flex; gap:16px; margin-top:24px; flex-wrap:wrap; justify-content:center;">
-      <button onclick="closePermWarning()" style="
-        padding:14px 28px; border-radius:12px; border:1px solid #ff9500; 
-        background:transparent; color:#ff9500; font-weight:600; min-width:120px;
-      ">Cancel</button>
-      
-      <button id="allowPermissionsBtn" style="
-        padding:14px 28px; border-radius:12px; background:linear-gradient(90deg,#ff9500,#ff6b35); 
-        color:white; border:none; font-weight:700; min-width:140px; box-shadow:0 4px 15px rgba(255,149,0,0.4);
-      ">Allow Access</button>
-    </div>
-    
-    <div style="margin-top:20px; font-size:0.8em; opacity:0.7;">
-      You can change permissions anytime in browser settings
-    </div>
-  </div>
-</div>
-
+    #permWarning { position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; flex-direction:column; justify-content:center; align-items:center; z-index:9999; padding:20px; text-align:center; }
+    #permWarning.show { display:flex; }
   </style>
 </head>
 <body data-theme="dark">
@@ -107,82 +53,85 @@
 
   <div id="overlay" onclick="togglePanel()"></div>
 
-  <div id="notif">Opening avatar in new tab...</div>
+  <!-- Permission Warning -->
+  <div id="permWarning">
+    <div style="background:#161b22; border:1px solid #30363d; border-radius:16px; padding:32px 24px; max-width:420px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+      <div style="width:80px; height:80px; background:#ff9500; border-radius:50%; margin:0 auto 20px; display:grid; place-items:center; font-size:40px; color:white;">Warning</div>
+      <h2 style="color:#ff9500; margin:16px 0;">Allow Full Access?</h2>
+      <p style="line-height:1.6; opacity:0.9;">
+        Mini Streamer needs:<br>
+        • Camera & Microphone<br>
+        • Screen Recording<br>
+        • Audio from apps<br><br>
+        <strong style="color:#ff6b6b;">Warning: Everything on screen will be visible!</strong>
+      </p>
+      <div style="display:flex; gap:16px; margin-top:24px; justify-content:center;">
+        <button onclick="closePermWarning()" style="padding:14px 28px; border:1px solid #ff9500; background:transparent; color:#ff9500; border-radius:12px;">Cancel</button>
+        <button id="allowBtn" style="padding:14px 28px; background:#ff9500; color:white; border:none; border-radius:12px; font-weight:700;">Allow Access</button>
+      </div>
+    </div>
+  </div>
 
   <div id="sidePanel">
     <div class="logo-header">
-      <img src="https://via.placeholder.com/90x90/ff9500/ffffff?text=MS" alt="Mini Streamer">
-      <h1>Mini Streamer v2</h1>
+      <img src="https://via.placeholder.com/90x90/ff9500/ffffff?text=MS" alt="Logo">
+      <h1>Mini Streamer v3</h1>
     </div>
 
     <div class="card">
-      <h2>Sources</h2>
+      <h2>Media Sources</h2>
       <div class="row">
         <button id="btnWebcam">Webcam</button>
         <button id="btnScreen">Screen Share</button>
         <button id="btnVideoFile">Video File</button>
       </div>
       <div class="row">
-        <button id="btnImageOverlay">Image Overlay</button>
-        <button id="btnLogo">Add Logo</button>
-        <button id="btnBackground">Set Background</button>
+        <button id="btnImage">Image / GIF</button>
+        <button id="btnLogo">Logo</button>
+        <button id="btnBackground">Background</button>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>Web & Streaming</h2>
+      <div class="row">
+        <button id="btnBrowser">Browser</button>
+        <button id="btnYouTube">YouTube</button>
+        <button id="btnTwitch">Twitch</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Overlays</h2>
       <div class="row">
         <button id="btnText">Text</button>
         <button id="btnTimer">Timer</button>
       </div>
-
-      <input type="file" id="imageInput" accept="image/*" hidden>
-      <input type="file" id="videoInput" accept="video/*" hidden>
-      <input type="file" id="logoInput" accept="image/*" hidden>
-      <input type="file" id="bgInput" accept="image/*,video/*" hidden>
     </div>
 
     <div class="card">
-      <h2>Theme</h2>
-      <select id="themeSelect">
-        <option value="dark">Dark (Default)</option>
-        <option value="light">Light</option>
-        <option value="neon">Neon</option>
-        <option value="pastel">Pastel</option>
-      </select>
-    </div>
-
-    <div class="card">
-      <h2>Free Avatars (Click to Load)</h2>
-      <div class="row"><button onclick="loadAvatar('https://webvtuber.net/')">WebVTuber (Best)</button></div>
-      <div class="row"><button onclick="loadAvatar('https://livereacting.com/avatar')">LiveReacting</button></div>
-      <div class="row"><button onclick="loadAvatar('https://demo.readyplayer.me/avatar')">ReadyPlayerMe</button></div>
-      <div class="row"><button onclick="loadAvatar('https://vts.pixelcanvas.dev')">VTuber Studio Web</button></div>
-      <div class="small">Transparent background • Mic reactive • Works instantly</div>
+      <h2>Avatars</h2>
+      <button onclick="loadAvatar('https://webvtuber.net/')">WebVTuber</button>
+      <button onclick="loadAvatar('https://demo.readyplayer.me/avatar')">ReadyPlayerMe</button>
     </div>
 
     <div class="card">
       <h2>Layers</h2>
-      <div class="small">Tap & drag on preview • Resize from corner</div>
+      <div class="small">Tap & drag • Corner = resize</div>
       <div id="layersList" class="layers"></div>
     </div>
 
-    <div class="card">
-      <h2>Output</h2>
-      <div class="row">
-        <button id="muteAll">Mute All</button>
-        <button id="stopAll">Stop All</button>
-      </div>
-      <div class="row">
-        <span class="small">FPS:</span> <span id="fps">--</span>
-        <span style="flex:1"></span>
-        <span class="small">Status:</span> <span id="recStatus">idle</span>
-      </div>
-    </div>
+    <input type="file" id="imageInput" accept="image/*" hidden>
+    <input type="file" id="videoInput" accept="video/*" hidden>
+    <input type="file" id="bgInput" accept="image/*,video/*" hidden>
   </div>
 
   <div id="previewWrap">
-    <canvas id="preview" width="1280" height="720"></canvas>
+    <canvas id="preview"></canvas>
   </div>
 
   <div id="bottomBar">
-    <button id="startRec">● RECORD</button>
+    <button id="startRec">RECORD</button>
     <button id="goLive">LIVE</button>
     <select id="resolution">
       <option value="1280x720">720p</option>
@@ -193,27 +142,22 @@
   </div>
 
   <script>
-    function togglePanel(){
+    function togglePanel() {
       document.getElementById('sidePanel').classList.toggle('open');
       document.getElementById('overlay').classList.toggle('open');
     }
 
-    document.getElementById('themeSelect').onchange = e => document.body.dataset.theme = e.target.value;
-
-    function loadAvatar(url){
-      const wrap = document.getElementById('previewWrap');
+    function loadAvatar(url) {
       const old = document.getElementById('avatarFrame');
-      if(old) old.remove();
-
+      if (old) old.remove();
       const iframe = document.createElement('iframe');
       iframe.id = "avatarFrame";
       iframe.src = url;
       iframe.allow = "camera *; microphone *; autoplay";
-      iframe.allowFullscreen = true;
-      wrap.appendChild(iframe);
+      iframe.style = "position:absolute; top:0; left:0; width:100%; height:100%; border:0; z-index:10; pointer-events:none;";
+      document.getElementById('previewWrap').appendChild(iframe);
     }
   </script>
-
   <script defer src="script.js"></script>
 </body>
 </html>
