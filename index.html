@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Streamer — Record & Go Live</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <style>
+    :root { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; }
+    body { margin:0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display:flex; justify-content:center; padding:20px; }
+    .wrap { max-width: 1600px; display:grid; grid-template-columns: 420px 1fr; gap: 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+    h2 { margin: 0 0 12px; color: white; }
+    button, input, select { background: #21262d; border: 1px solid var(--border); color: white; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+    button:hover { background: #30363d; }
+    button:active { transform: translateY(1px); }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .layers { max-height: 400px; overflow-y: auto; }
+    .layer { display: grid; grid-template-columns: 40px 120px 100px 40px 40px 40px; gap: 8px; align-items: center; margin: 6px 0; }
+    .pill { background: #238636; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; }
+    .muted { color: #8b949e; }
+    .small { font-size: 0.8em; }
+    #preview { width: 100%; height: auto; border-radius: 12px; background: #000; }
+    #previewWrap { position: relative; }
+    footer { margin-top: 20px; font-size: 0.8em; color: #8b949e; }
+    #goLive { background: linear-gradient(90deg, #7c3aed, #db2777); font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h2>Sources & Scenes</h2>
+    <div class="controls">
+      <div class="row"><button id="btnWebcam">+ Webcam</button></div>
+      <div class="row"><button id="btnScreen">+ Screen Share</button></div>
+      <div class="row"><button id="btnVideoFile">+ Video File</button></div>
+      <div class="row"><label class="pill" id="btnImageOverlay">+ Image Overlay</label></div>
+      <input type="file" id="imageInput" accept="image/*" hidden>
+      <input type="file" id="videoInput" accept="video/*" hidden>
+
+      <div style="margin-top:16px;">
+        <div class="small">Scenes</div>
+        <div class="row" style="margin-top:6px;">
+          <input id="sceneName" placeholder="my-scene">
+          <button id="saveScene">Save</button>
+        </div>
+        <div class="scenes" id="scenesList"></div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:20px">Layers</h2>
+    <div class="muted small">Visibility • Opacity • Z-order</div>
+    <div class="layers" id="layersList"></div>
+
+    <h2 style="margin-top:20px">Output</h2>
+    <div style="display:grid; gap:8px;">
+      <button id="startRec" style="background:linear-gradient(90deg,var(--accent),#60a5fa);font-weight:700;">Record Local (.webm)</button>
+      <button id="goLive">Go Live to Twitch / YouTube / Facebook</button>
+      <button id="stopAll" disabled>Stop Everything</button>
+    </div>
+
+    <div class="row" style="margin-top:12px; font-size:0.9em;">
+      <div><span class="small">FPS</span> <span id="fps">--</span></div>
+      <div style="margin-left:auto;"><span class="small">Status</span> <span id="recStatus">idle</span></div>
+    </div>
+
+    <footer>
+      Works on localhost or HTTPS • Free live streaming via Dolby Millicast
+    </footer>
+  </div>
+
+  <div id="program">
+    <div class="card" id="previewWrap">
+      <canvas id="preview" width="1280" height="720"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="small">Last recording / stream</div>
+          <div class="muted" id="recordingInfo">No output yet</div>
+        </div>
+        <div style="text-align:right">
+          <div class="small">Resolution</div>
+          <select id="resolution">
+            <option value="1280x720" selected>1280×720</option>
+            <option value="1920x1080">1920×1080</option>
+            <option value="854x480">854×480</option>
+          </select>
+          <button id="applyRes">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Millicast SDK (free tier) -->
+<script src="https://cdn.millicast.com/sdk/javascript/millicast-sdk-latest.min.js"></script>
+<script defer src="script.js"></script>
+</body>
+</html>

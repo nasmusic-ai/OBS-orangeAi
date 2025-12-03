@@ -1,0 +1,77 @@
+sleigh drawn by reindeer<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini Streamer — Browser Demo</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h2>Sources & Scenes</h2>
+    <div class="controls">
+      <button id="btnWebcam">+ Add Webcam</button>
+      <button id="btnScreen">+ Add Screen</button>
+      <button id="btnVideoFile">+ Add Video File</button>
+      <label class="pill" id="btnImageOverlay">+ Add Overlay Image</label>
+      <input type="file" id="imageInput" accept="image/*">
+      <input type="file" id="videoInput" accept="video/*">
+      <div style="margin-top:10px;">
+        <div class="small">Scenes</div>
+        <div class="row" style="margin-top:6px;">
+          <input id="sceneName" placeholder="scene name" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit">
+          <button id="saveScene">Save</button>
+        </div>
+        <div class="scenes" id="scenesList"></div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:14px">Layers</h2>
+    <div class="muted small">Toggle visibility / z-order / opacity</div>
+    <div class="layers" id="layersList"></div>
+
+    <h2 style="margin-top:12px">Recording / Stream</h2>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button id="startRec" style="flex:1;background:linear-gradient(90deg,var(--accent),#60a5fa);border:none;font-weight:700;">Start Recording</button>
+      <button id="stopRec" style="flex:1;" disabled>Stop</button>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <div class="small">FPS</div><div id="fps" class="muted" style="margin-left:6px">--</div>
+      <div style="flex:1"></div>
+      <div class="small">Status</div><div id="recStatus" class="muted" style="margin-left:6px">idle</div>
+    </div>
+
+    <footer>
+      Note: For full screen capture / mic access use HTTPS or run on <code>localhost</code>.
+    </footer>
+  </div>
+
+  <div id="program">
+    <div class="card" id="previewWrap">
+      <canvas id="preview" width="1280" height="720"></canvas>
+    </div>
+
+    <div class="card" style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
+      <div>
+        <div class="small">Recordings will download as .webm</div>
+        <div class="muted" id="recordingInfo">No recording yet</div>
+      </div>
+      <div style="text-align:right">
+        <div class="small">Preview size</div>
+        <div class="row" style="margin-top:6px;">
+          <select id="resolution">
+            <option value="1280x720">1280×720</option>
+            <option value="1920x1080">1920×1080</option>
+            <option value="854x480">854×480</option>
+          </select>
+          <button id="applyRes">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script defer src="js/script.js"></script>
+</body>
+</html>
