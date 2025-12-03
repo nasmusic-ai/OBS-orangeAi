@@ -50,6 +50,53 @@
     .layer { display:grid; grid-template-columns:auto 1fr auto auto auto auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9em; }
 
     #notif { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--card); border:1px solid var(--border); padding:20px 40px; border-radius:12px; display:none; z-index:2000; text-align:center; font-weight:bold; }
+  
+  <!-- Permission Warning Popup -->
+<div id="permWarning" style="
+  position:fixed; inset:0; background:rgba(0,0,0,0.92); 
+  display:none; flex-direction:column; justify-content:center; 
+  align-items:center; z-index:9999; padding:20px; text-align:center;
+  font-family:Inter,Arial,sans-serif; color:#eee;
+">
+  <div style="
+    background:#161b22; border:1px solid #30363d; border-radius:16px; 
+    padding:32px 24px; max-width:420px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  ">
+    <div style="width:80px; height:80px; background:#ff9500; border-radius:50%; 
+      margin:0 auto 20px; display:grid; place-items:center; font-size:40px;">
+      Warning
+    </div>
+    
+    <h2 style="font-size:1.4em; margin:16px 0; color:#ff9500;">Allow Screen & Microphone Access?</h2>
+    
+    <p style="line-height:1.6; margin:20px 0; opacity:0.9; font-size:0.98em;">
+      Mini Streamer needs permission to:
+      <br><br>
+      • Capture your <strong>screen</strong> (for sharing)<br>
+      • Access your <strong>camera & microphone</strong> (for webcam/avatar)<br>
+      • Record <strong>audio</strong> from apps/tabs
+      <br><br>
+      <strong style="color:#ff6b6b;">Sensitive info like passwords will be visible if shown on screen!</strong>
+    </p>
+
+    <div style="display:flex; gap:16px; margin-top:24px; flex-wrap:wrap; justify-content:center;">
+      <button onclick="closePermWarning()" style="
+        padding:14px 28px; border-radius:12px; border:1px solid #ff9500; 
+        background:transparent; color:#ff9500; font-weight:600; min-width:120px;
+      ">Cancel</button>
+      
+      <button id="allowPermissionsBtn" style="
+        padding:14px 28px; border-radius:12px; background:linear-gradient(90deg,#ff9500,#ff6b35); 
+        color:white; border:none; font-weight:700; min-width:140px; box-shadow:0 4px 15px rgba(255,149,0,0.4);
+      ">Allow Access</button>
+    </div>
+    
+    <div style="margin-top:20px; font-size:0.8em; opacity:0.7;">
+      You can change permissions anytime in browser settings
+    </div>
+  </div>
+</div>
+
   </style>
 </head>
 <body data-theme="dark">
