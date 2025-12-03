@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Mini Streamer</title>
+  <title>Mini Streamer v2</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
   <style>
     :root { 
@@ -18,24 +18,19 @@
     * { box-sizing:border-box; margin:0; padding:0; }
     body { background:var(--bg); color:var(--text); font-family:var(--font); overflow:hidden; height:100vh; display:flex; flex-direction:column; }
 
-    /* Hamburger */
     #hamburger { position:fixed; top:12px; left:12px; z-index:1000; width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius:50%; display:grid; place-items:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
     #hamburger svg { width:28px; height:28px; fill:var(--text); }
 
-    /* Overlay */
     #overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); opacity:0; pointer-events:none; transition:opacity .3s; z-index:998; }
     #overlay.open { opacity:1; pointer-events:all; }
 
-    /* Side Panel */
     #sidePanel { position:fixed; top:0; left:-360px; width:340px; max-width:90vw; height:100%; background:var(--card); border-right:1px solid var(--border); transition:left .3s ease; z-index:999; padding:16px; overflow-y:auto; }
     #sidePanel.open { left:0; }
 
-    /* Logo Header */
     .logo-header { text-align:center; padding:20px 0 30px; border-bottom:1px solid var(--border); margin-bottom:20px; }
     .logo-header img { width:90px; height:90px; }
     .logo-header h1 { margin-top:12px; font-size:1.2em; background:linear-gradient(90deg,#ff9500,#ff5e00); -webkit-background-clip:text; background-clip:text; color:transparent; }
 
-    /* Cards */
     .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
     h2 { font-size:1.1em; margin-bottom:12px; opacity:0.9; }
     .row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px; align-items:center; }
@@ -43,36 +38,34 @@
     button:hover { background:var(--border); }
     .small { font-size:0.85em; opacity:0.8; }
 
-    /* Preview */
-    #previewWrap { flex:1; position:relative; background:#000; }
-    #preview { width:100%; height:100%; object-fit:contain; touch-action:none; }
+    #previewWrap { flex:1; position:relative; background:#000; overflow:hidden; }
+    #preview { width:100%; height:100%; object-fit:contain; touch-action:none; background:#000; }
+    #avatarFrame { position:absolute; top:0; left:0; width:100%; height:100%; border:0; pointer-events:none; z-index:10; }
 
-    /* Bottom Bar */
     #bottomBar { height:70px; background:var(--card); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:12px; flex-wrap:wrap; }
     #bottomBar button { flex:1; max-width:160px; height:50px; font-weight:700; font-size:1.1em; }
     #startRec { background:linear-gradient(90deg,#ff5e00,#ff9500) !important; color:white !important; }
 
-    /* Layers list */
     .layers { max-height:40vh; overflow-y:auto; }
-    .layer { display:grid; grid-template-columns:auto 1fr auto auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9em; }
+    .layer { display:grid; grid-template-columns:auto 1fr auto auto auto auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9em; }
+
+    #notif { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--card); border:1px solid var(--border); padding:20px 40px; border-radius:12px; display:none; z-index:2000; text-align:center; font-weight:bold; }
   </style>
 </head>
 <body data-theme="dark">
 
-  <!-- Hamburger -->
   <div id="hamburger" onclick="togglePanel()">
     <svg viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/></svg>
   </div>
 
-  <!-- Overlay -->
   <div id="overlay" onclick="togglePanel()"></div>
 
-  <!-- Side Panel -->
+  <div id="notif">Opening avatar in new tab...</div>
+
   <div id="sidePanel">
-    <!-- Logo Header -->
     <div class="logo-header">
-      <img src="assets/logo.png" alt="Orange OBS Logo">
-      <h1>Streaming Settings</h1>
+      <img src="https://via.placeholder.com/90x90/ff9500/ffffff?text=MS" alt="Mini Streamer">
+      <h1>Mini Streamer v2</h1>
     </div>
 
     <div class="card">
@@ -91,6 +84,7 @@
         <button id="btnText">Text</button>
         <button id="btnTimer">Timer</button>
       </div>
+
       <input type="file" id="imageInput" accept="image/*" hidden>
       <input type="file" id="videoInput" accept="video/*" hidden>
       <input type="file" id="logoInput" accept="image/*" hidden>
@@ -108,8 +102,17 @@
     </div>
 
     <div class="card">
+      <h2>Free Avatars (Click to Load)</h2>
+      <div class="row"><button onclick="loadAvatar('https://webvtuber.net/')">WebVTuber (Best)</button></div>
+      <div class="row"><button onclick="loadAvatar('https://livereacting.com/avatar')">LiveReacting</button></div>
+      <div class="row"><button onclick="loadAvatar('https://demo.readyplayer.me/avatar')">ReadyPlayerMe</button></div>
+      <div class="row"><button onclick="loadAvatar('https://vts.pixelcanvas.dev')">VTuber Studio Web</button></div>
+      <div class="small">Transparent background • Mic reactive • Works instantly</div>
+    </div>
+
+    <div class="card">
       <h2>Layers</h2>
-      <div class="small">Drag & resize on preview</div>
+      <div class="small">Tap & drag on preview • Resize from corner</div>
       <div id="layersList" class="layers"></div>
     </div>
 
@@ -117,7 +120,7 @@
       <h2>Output</h2>
       <div class="row">
         <button id="muteAll">Mute All</button>
-        <button id="stopAll" disabled>Stop All</button>
+        <button id="stopAll">Stop All</button>
       </div>
       <div class="row">
         <span class="small">FPS:</span> <span id="fps">--</span>
@@ -127,37 +130,43 @@
     </div>
   </div>
 
-  <!-- Main Preview -->
   <div id="previewWrap">
     <canvas id="preview" width="1280" height="720"></canvas>
   </div>
 
-  <!-- Bottom Bar -->
   <div id="bottomBar">
     <button id="startRec">● RECORD</button>
     <button id="goLive">LIVE</button>
     <select id="resolution">
       <option value="1280x720">720p</option>
-      <option value="1920x1080">1080p</option>
+      <option value="1920x1080" selected>1080p</option>
       <option value="854x480">480p</option>
     </select>
     <button id="applyRes">Apply</button>
   </div>
 
-  <!-- Millicast SDK -->
-  <script src="https://cdn.millicast.com/sdk/javascript/millicast-sdk-latest.min.js"></script>
-
   <script>
-    function togglePanel() {
+    function togglePanel(){
       document.getElementById('sidePanel').classList.toggle('open');
       document.getElementById('overlay').classList.toggle('open');
     }
 
-    document.getElementById('themeSelect').onchange = e => 
-      document.body.dataset.theme = e.target.value;
+    document.getElementById('themeSelect').onchange = e => document.body.dataset.theme = e.target.value;
+
+    function loadAvatar(url){
+      const wrap = document.getElementById('previewWrap');
+      const old = document.getElementById('avatarFrame');
+      if(old) old.remove();
+
+      const iframe = document.createElement('iframe');
+      iframe.id = "avatarFrame";
+      iframe.src = url;
+      iframe.allow = "camera *; microphone *; autoplay";
+      iframe.allowFullscreen = true;
+      wrap.appendChild(iframe);
+    }
   </script>
 
-  <!-- Keep your existing script.js below (with small additions) -->
   <script defer src="script.js"></script>
 </body>
 </html>
