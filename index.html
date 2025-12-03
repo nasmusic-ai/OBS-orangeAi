@@ -2,100 +2,162 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mini Streamer — Record & Go Live</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Mini Streamer</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
   <style>
-    :root { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; }
-    body { margin:0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display:flex; justify-content:center; padding:20px; }
-    .wrap { max-width: 1600px; display:grid; grid-template-columns: 420px 1fr; gap: 20px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
-    h2 { margin: 0 0 12px; color: white; }
-    button, input, select { background: #21262d; border: 1px solid var(--border); color: white; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
-    button:hover { background: #30363d; }
-    button:active { transform: translateY(1px); }
-    .row { display: flex; gap: 8px; align-items: center; }
-    .layers { max-height: 400px; overflow-y: auto; }
-    .layer { display: grid; grid-template-columns: 40px 120px 100px 40px 40px 40px; gap: 8px; align-items: center; margin: 6px 0; }
-    .pill { background: #238636; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; }
-    .muted { color: #8b949e; }
-    .small { font-size: 0.8em; }
-    #preview { width: 100%; height: auto; border-radius: 12px; background: #000; }
-    #previewWrap { position: relative; }
-    footer { margin-top: 20px; font-size: 0.8em; color: #8b949e; }
-    #goLive { background: linear-gradient(90deg, #7c3aed, #db2777); font-weight: 700; }
+    :root { 
+      --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; --highlight: #7c3aed;
+      --font: 'Inter', sans-serif;
+    }
+    [data-theme="dark"]   { --bg:#000; --card:#111; --text:#eee; --accent:#0f0; --border:#222; }
+    [data-theme="light"]  { --bg:#fff; --card:#f5f5f5; --text:#333; --accent:#007bff; --border:#ddd; }
+    [data-theme="neon"]   { --bg:#000; --card:#111; --text:#fff; --accent:#ff0; --border:#0ff; text-shadow:0 0 5px #0ff; }
+    [data-theme="pastel"] { --bg:#f0f4f8; --card:#fff; --text:#555; --accent:#a8dadc; --border:#e3e3e3; }
+
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); overflow:hidden; height:100vh; display:flex; flex-direction:column; }
+
+    /* Hamburger */
+    #hamburger { position:fixed; top:12px; left:12px; z-index:1000; width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius:50%; display:grid; place-items:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+    #hamburger svg { width:28px; height:28px; fill:var(--text); }
+
+    /* Overlay */
+    #overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); opacity:0; pointer-events:none; transition:opacity .3s; z-index:998; }
+    #overlay.open { opacity:1; pointer-events:all; }
+
+    /* Side Panel */
+    #sidePanel { position:fixed; top:0; left:-360px; width:340px; max-width:90vw; height:100%; background:var(--card); border-right:1px solid var(--border); transition:left .3s ease; z-index:999; padding:16px; overflow-y:auto; }
+    #sidePanel.open { left:0; }
+
+    /* Logo Header */
+    .logo-header { text-align:center; padding:20px 0 30px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+    .logo-header img { width:90px; height:90px; border-radius:50%; box-shadow:0 4px 20px rgba(255,105,0,0.4); }
+    .logo-header h1 { margin-top:12px; font-size:1.6em; background:linear-gradient(90deg,#ff9500,#ff5e00); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+    /* Cards */
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+    h2 { font-size:1.1em; margin-bottom:12px; opacity:0.9; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px; align-items:center; }
+    button, select, input[type=text] { background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 14px; min-height:48px; cursor:pointer; font-size:1em; }
+    button:hover { background:var(--border); }
+    .small { font-size:0.85em; opacity:0.8; }
+
+    /* Preview */
+    #previewWrap { flex:1; position:relative; background:#000; }
+    #preview { width:100%; height:100%; object-fit:contain; touch-action:none; }
+
+    /* Bottom Bar */
+    #bottomBar { height:70px; background:var(--card); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:12px; flex-wrap:wrap; }
+    #bottomBar button { flex:1; max-width:160px; height:50px; font-weight:700; font-size:1.1em; }
+    #startRec { background:linear-gradient(90deg,#ff5e00,#ff9500) !important; color:white !important; }
+
+    /* Layers list */
+    .layers { max-height:40vh; overflow-y:auto; }
+    .layer { display:grid; grid-template-columns:auto 1fr auto auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9em; }
   </style>
 </head>
-<body>
-<div class="wrap">
-  <div class="card">
-    <h2>Sources & Scenes</h2>
-    <div class="controls">
-      <div class="row"><button id="btnWebcam">+ Webcam</button></div>
-      <div class="row"><button id="btnScreen">+ Screen Share</button></div>
-      <div class="row"><button id="btnVideoFile">+ Video File</button></div>
-      <div class="row"><label class="pill" id="btnImageOverlay">+ Image Overlay</label></div>
-      <input type="file" id="imageInput" accept="image/*" hidden>
-      <input type="file" id="videoInput" accept="video/*" hidden>
+<body data-theme="dark">
 
-      <div style="margin-top:16px;">
-        <div class="small">Scenes</div>
-        <div class="row" style="margin-top:6px;">
-          <input id="sceneName" placeholder="my-scene">
-          <button id="saveScene">Save</button>
-        </div>
-        <div class="scenes" id="scenesList"></div>
-      </div>
-    </div>
-
-    <h2 style="margin-top:20px">Layers</h2>
-    <div class="muted small">Visibility • Opacity • Z-order</div>
-    <div class="layers" id="layersList"></div>
-
-    <h2 style="margin-top:20px">Output</h2>
-    <div style="display:grid; gap:8px;">
-      <button id="startRec" style="background:linear-gradient(90deg,var(--accent),#60a5fa);font-weight:700;">Record Local (.webm)</button>
-      <button id="goLive">Go Live to Twitch / YouTube / Facebook</button>
-      <button id="stopAll" disabled>Stop Everything</button>
-    </div>
-
-    <div class="row" style="margin-top:12px; font-size:0.9em;">
-      <div><span class="small">FPS</span> <span id="fps">--</span></div>
-      <div style="margin-left:auto;"><span class="small">Status</span> <span id="recStatus">idle</span></div>
-    </div>
-
-    <footer>
-      Works on localhost or HTTPS • Free live streaming via Dolby Millicast
-    </footer>
+  <!-- Hamburger -->
+  <div id="hamburger" onclick="togglePanel()">
+    <svg viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/></svg>
   </div>
 
-  <div id="program">
-    <div class="card" id="previewWrap">
-      <canvas id="preview" width="1280" height="720"></canvas>
+  <!-- Overlay -->
+  <div id="overlay" onclick="togglePanel()"></div>
+
+  <!-- Side Panel -->
+  <div id="sidePanel">
+    <!-- Logo Header -->
+    <div class="logo-header">
+      <img src="https://i.ibb.co/0jY7Z8K/orange-obs-logo.png" alt="Orange OBS Logo">
+      <h1>Orange_OBS</h1>
     </div>
 
     <div class="card">
-      <div class="row" style="justify-content:space-between;">
-        <div>
-          <div class="small">Last recording / stream</div>
-          <div class="muted" id="recordingInfo">No output yet</div>
-        </div>
-        <div style="text-align:right">
-          <div class="small">Resolution</div>
-          <select id="resolution">
-            <option value="1280x720" selected>1280×720</option>
-            <option value="1920x1080">1920×1080</option>
-            <option value="854x480">854×480</option>
-          </select>
-          <button id="applyRes">Apply</button>
-        </div>
+      <h2>Sources</h2>
+      <div class="row">
+        <button id="btnWebcam">Webcam</button>
+        <button id="btnScreen">Screen Share</button>
+        <button id="btnVideoFile">Video File</button>
+      </div>
+      <div class="row">
+        <button id="btnImageOverlay">Image Overlay</button>
+        <button id="btnLogo">Add Logo</button>
+        <button id="btnBackground">Set Background</button>
+      </div>
+      <div class="row">
+        <button id="btnText">Text</button>
+        <button id="btnTimer">Timer</button>
+      </div>
+      <input type="file" id="imageInput" accept="image/*" hidden>
+      <input type="file" id="videoInput" accept="video/*" hidden>
+      <input type="file" id="logoInput" accept="image/*" hidden>
+      <input type="file" id="bgInput" accept="image/*,video/*" hidden>
+    </div>
+
+    <div class="card">
+      <h2>Theme</h2>
+      <select id="themeSelect">
+        <option value="dark">Dark (Default)</option>
+        <option value="light">Light</option>
+        <option value="neon">Neon</option>
+        <option value="pastel">Pastel</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h2>Layers</h2>
+      <div class="small">Drag & resize on preview</div>
+      <div id="layersList" class="layers"></div>
+    </div>
+
+    <div class="card">
+      <h2>Output</h2>
+      <div class="row">
+        <button id="muteAll">Mute All</button>
+        <button id="stopAll" disabled>Stop All</button>
+      </div>
+      <div class="row">
+        <span class="small">FPS:</span> <span id="fps">--</span>
+        <span style="flex:1"></span>
+        <span class="small">Status:</span> <span id="recStatus">idle</span>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Millicast SDK (free tier) -->
-<script src="https://cdn.millicast.com/sdk/javascript/millicast-sdk-latest.min.js"></script>
-<script defer src="script.js"></script>
+  <!-- Main Preview -->
+  <div id="previewWrap">
+    <canvas id="preview" width="1280" height="720"></canvas>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div id="bottomBar">
+    <button id="startRec">● RECORD</button>
+    <button id="goLive">LIVE</button>
+    <select id="resolution">
+      <option value="1280x720">720p</option>
+      <option value="1920x1080">1080p</option>
+      <option value="854x480">480p</option>
+    </select>
+    <button id="applyRes">Apply</button>
+  </div>
+
+  <!-- Millicast SDK -->
+  <script src="https://cdn.millicast.com/sdk/javascript/millicast-sdk-latest.min.js"></script>
+
+  <script>
+    function togglePanel() {
+      document.getElementById('sidePanel').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('open');
+    }
+
+    document.getElementById('themeSelect').onchange = e => 
+      document.body.dataset.theme = e.target.value;
+  </script>
+
+  <!-- Keep your existing script.js below (with small additions) -->
+  <script defer src="script.js"></script>
 </body>
 </html>
