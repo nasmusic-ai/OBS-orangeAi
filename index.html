@@ -1,55 +1,51 @@
-<!doctype html>
+<!DOCTYPE html>
+<!-- index.html -->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>Mini Streamer v5</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/three@0.165/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@talkinghead/talkinghead@latest/dist/TalkingHead.min.js"></script>
   <style>
     :root { --bg:#000; --card:#111; --text:#eee; --accent:#ff9500; --border:#30363d; }
-    [data-theme="light"] { --bg:#f9f9f9; --card:#fff; --text:#222; --accent:#007bff; --border:#ddd; }
-    [data-theme="neon"] { --bg:#0a0a0a; --card:#1a1a2e; --text:#0ff; --accent:#ff00ff; --border:#0ff; text-shadow:0 0 10px #0ff; }
-    [data-theme="cyber"] { --bg:#001122; --card:#002233; --text:#00ffcc; --accent:#ff3366; --border:#00ffcc; }
-    [data-theme="pastel"] { --bg:#fdf2f8; --card:#fce7f3; --text:#6b21a8; --accent:#ec4899; --border:#f472b6; }
-
+    [data-theme="light"] { --bg:#fff; --card:#f5f5f5; --text:#333; --accent:#007bff; --border:#ddd; }
     * { box-sizing:border-box; margin:0; padding:0; }
     body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow:hidden; height:100vh; display:flex; flex-direction:column; }
 
-    #hamburger { position:fixed; top:12px; left:12px; z-index:1000; width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius:50%; display:grid; place-items:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    #hamburger { position:fixed; top:12px; left:12px; z-index:1000; width:48px; height:48px; background:var(--card); border:1px solid var(--border); border-radius:50%; display:grid; place-items:center; cursor:pointer; }
     #hamburger svg { width:28px; height:28px; fill:var(--text); }
 
     #overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); opacity:0; pointer-events:none; transition:opacity .3s; z-index:998; }
     #overlay.open { opacity:1; pointer-events:all; }
 
-    #sidePanel { position:fixed; top:0; left:-380px; width:360px; max-width:92vw; height:100%; background:var(--card); border-right:1px solid var(--border); transition:left .35s; z-index:999; padding:16px; overflow-y:auto; }
+    #sidePanel { position:fixed; top:0; left:-360px; width:340px; max-width:90vw; height:100%; background:var(--card); border-right:1px solid var(--border); transition:left .3s; z-index:999; padding:16px; overflow-y:auto; }
     #sidePanel.open { left:0; }
 
-    .tab { display:none; }
-    .tab.active { display:block; }
-    .tab-btns { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
-    .tab-btn { flex:1; padding:12px; background:#222; border-radius:8px; text-align:center; cursor:pointer; }
-    .tab-btn.active { background:var(--accent); color:white; }
+    .logo-header { text-align:center; padding:20px 0 30px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+    .logo-header img { width:90px; height:90px; border-radius:50%; }
+    .logo-header h1 { margin-top:12px; font-size:1.3em; background:linear-gradient(90deg,#ff9500,#ff5e00); -webkit-background-clip:text; color:transparent; }
 
     .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
-    h2 { font-size:1.2em; margin-bottom:12px; color:var(--accent); }
-    button, input, select { background:#222; border:1px solid var(--border); color:var(--text); border-radius:8px; padding:12px 14px; min-height:48px; width:100%; margin:6px 0; cursor:pointer; }
-    button:hover { background:#333; }
-    .source-btn { background:linear-gradient(135deg,#333,#444); font-weight:600; }
-
-    .theme-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-    .theme-item { border-radius:12px; padding:16px; text-align:center; cursor:pointer; border:2px solid transparent; transition:all .3s; }
-    .theme-item.active { border-color:var(--accent); box-shadow:0 0 20px rgba(255,149,0,0.4); }
-    .theme-preview { width:100%; height:80px; border-radius:8px; margin-bottom:8px; background:var(--bg); }
-
-    .overlay-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-    .overlay-item { background:#222; border-radius:12px; padding:12px; text-align:center; cursor:pointer; }
-    .overlay-item img { width:100%; height:80px; object-fit:cover; border-radius:8px; }
+    h2 { font-size:1.1em; margin-bottom:12px; opacity:0.9; color:var(--accent); }
+    .row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px; align-items:center; }
+    button, select { background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 14px; min-height:48px; cursor:pointer; font-size:1em; }
+    button:hover { background:var(--border); }
+    .small { font-size:0.85em; opacity:0.8; }
 
     #previewWrap { flex:1; position:relative; background:#000; overflow:hidden; }
-    #preview { width:100%; height:100%; touch-action:none; background:#000; display:block; }
+    #preview { width:100%; height:100%; object-fit:contain; touch-action:none; background:#000; }
 
-    #bottomBar { height:70px; background:var(--card); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:12px; }
-    #goLive { background:#ff9500; color:white; font-weight:700; flex:2; font-size:1.1em; }
+    #bottomBar { height:70px; background:var(--card); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 16px; gap:12px; flex-wrap:wrap; }
+    #startRec { background:linear-gradient(90deg,#ff5e00,#ff9500); color:white; font-weight:700; }
+
+    .layers { max-height:40vh; overflow-y:auto; }
+    .layer { display:grid; grid-template-columns:auto 1fr auto auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9em; }
+
+    #avatarContainer { position:absolute; inset:0; pointer-events:none; z-index:5; }
+    #animatedOverlay { position:absolute; bottom:100px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.7); padding:15px 30px; border-radius:30px; color:white; font-size:2em; font-weight:bold; display:none; z-index:10; }
   </style>
 </head>
 <body data-theme="dark">
@@ -61,150 +57,64 @@
   <div id="overlay" onclick="togglePanel()"></div>
 
   <div id="sidePanel">
-    <h1 style="text-align:center; margin-bottom:20px; background:linear-gradient(90deg,#ff9500,#ff5e00); -webkit-background-clip:text; color:transparent; font-size:1.6em;">
-      Mini Streamer v5
-    </h1>
-
-    <div class="tab-btns">
-      <div class="tab-btn active" onclick="openTab('sources')">Sources</div>
-      <div class="tab-btn" onclick="openTab('overlays')">Overlays</div>
-      <div class="tab-btn" onclick="openTab('themes')">Themes</div>
-      <div class="tab-btn" onclick="openTab('stream')">Stream</div>
+    <div class="logo-header">
+      <img src="https://placehold.co/90x90/ff9500/ffffff?text=MS" alt="Logo">
+      <h1>Mini Streamer v5</h1>
     </div>
 
-    <!-- SOURCES TAB -->
-    <div id="sources" class="tab active">
-      <div class="card">
-        <h2>Sources</h2>
-        <button class="source-btn" onclick="addWebcam()">Webcam</button>
-        <button class="source-btn" onclick="addScreen()">Screen Share</button>
-        <button class="source-btn" onclick="addBrowser()">Browser / Website</button>
-        <button class="source-btn" onclick="addYouTube()">YouTube Video</button>
-        <button class="source-btn" onclick="addImage()">Image / GIF / Logo</button>
-        <button class="source-btn" onclick="addVideoFile()">Video File</button>
-        <button class="source-btn" onclick="addText()">Text / Label</button>
-        <button class="source-btn" onclick="addTimer()">Countdown Timer</button>
+    <div class="card">
+      <h2>Sources</h2>
+      <div class="row">
+        <button id="btnWebcam">Webcam</button>
+        <button id="btnScreen">Screen Share</button>
+        <button id="btnVideoFile">Video File</button>
+      </div>
+      <div class="row">
+        <button id="btnImage">Image / GIF</button>
+        <button id="btnLogo">Logo</button>
+        <button id="btnBackground">Background</button>
       </div>
     </div>
 
-    <!-- OVERLAYS TAB -->
-    <div id="overlays" class="tab">
-      <div class="card">
-        <h2>Streamlabs-Style Overlays</h2>
-        <div class="overlay-grid">
-          <div class="overlay-item" onclick="addAlertBox()">Alert Box</div>
-          <div class="overlay-item" onclick="addChatBox()">Chat Box</div>
-          <div class="overlay-item" onclick="addFollowerGoal()">Follower Goal</div>
-          <div class="overlay-item" onclick="addDonationGoal()">Donation Goal</div>
-          <div class="overlay-item" onclick="addEventList()">Event List</div>
-          <div class="overlay-item" onclick="addStreamLabels()">Stream Labels</div>
-        </div>
+    <div class="card">
+      <h2>Overlays</h2>
+      <div class="row">
+        <button id="btnText">Add Text</button>
+        <button id="btnTimer">Countdown Timer</button>
+        <button id="btnTriggerAnimation">Trigger Alert</button>
       </div>
     </div>
 
-    <!-- THEMES TAB -->
-    <div id="themes" class="tab">
-      <div class="card">
-        <h2>Theme Library</h2>
-        <div class="theme-grid">
-          <div class="theme-item active" onclick="setTheme('dark')">
-            <div class="theme-preview" style="background:#000;"></div>
-            <strong>Dark Mode</strong>
-          </div>
-          <div class="theme-item" onclick="setTheme('light')">
-            <div class="theme-preview" style="background:#f9f9f9;"></div>
-            <strong>Light Mode</strong>
-          </div>
-          <div class="theme-item" onclick="setTheme('neon')">
-            <div class="theme-preview" style="background:#0a0a0a; box-shadow:0 0 20px #0ff;"></div>
-            <strong>Neon Cyber</strong>
-          </div>
-          <div class="theme-item" onclick="setTheme('cyber')">
-            <div class="theme-preview" style="background:#001122;"></div>
-            <strong>Cyberpunk</strong>
-          </div>
-          <div class="theme-item" onclick="setTheme('pastel')">
-            <faithful class="theme-preview" style="background:#fdf2f8;"></div>
-            <strong>Pastel Dream</strong>
-          </div>
-          <div class="theme-item" onclick="alert('More themes coming soon!')">
-            <div class="theme-preview" style="background:linear-gradient(45deg,#ff9a9e,#fad0c4);"></div>
-            <strong>Coming Soon</strong>
-          </div>
-        </div>
-      </div>
+    <div class="card">
+      <h2>Avatar (Lip-Sync)</h2>
+      <button id="btnLoadAvatar">Load Talking Avatar</button>
     </div>
 
-    <!-- STREAM TAB -->
-    <div id="stream" class="tab">
-      <div class="card">
-        <h2>Go Live</h2>
-        <input type="text" placeholder="Stream Title" id="streamTitle">
-        <select id="platform">
-          <option>YouTube</option>
-          <option>Facebook</option>
-          <option>TikTok</option>
-          <option>Twitch</option>
-          <option>Custom RTMP</option>
-        </select>
-        <button id="goLiveBtn" style="background:#ff9500; color:white; font-weight:700;">GO LIVE</button>
-      </div>
+    <div class="card">
+      <h2>Layers</h2>
+      <div class="small">Tap & drag • Corner = resize</div>
+      <div id="layersList" class="layers"></div>
     </div>
+
+    <input type="file" id="imageInput" accept="image/*" hidden>
+    <input type="file" id="videoInput" accept="video/*" hidden>
+    <input type="file" id="bgInput" accept="image/*,video/*" hidden>
   </div>
 
   <div id="previewWrap">
-    <canvas id="preview"></canvas>
+    <canvas id="preview" width="1920" height="1080"></canvas>
+    <div id="avatarContainer"></div>
+    <div id="animatedOverlay">New Follower!</div>
   </div>
 
   <div id="bottomBar">
     <button id="startRec">RECORD</button>
-    <button id="goLive">GO LIVE</button>
+    <button id="streamRecorded">Play Recorded</button>
+    <button id="goLive">GO LIVE (Millicast)</button>
   </div>
 
-  <input type="file" id="imageInput" accept="image/*" hidden>
-  <input type="file" id="videoInput" accept="video/*" hidden>
-
-  <script>
-    function togglePanel() {
-      document.getElementById('sidePanel').classList.toggle('open');
-      document.getElementById('overlay').classList.toggle('open');
-    }
-
-    function openTab(tabName) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabName).classList.add('active');
-      event.target.classList.add('active');
-    }
-
-    function setTheme(theme) {
-      document.body.setAttribute('data-theme', theme);
-      document.querySelectorAll('.theme-item').forEach(t => t.classList.remove('active'));
-      event.target.closest('.theme-item').classList.add('active');
-    }
-
-    // Overlay Examples
-    function addAlertBox() {
-      addTextLayer("New Follower!", "#00ff00", 120, canvasW/2, 200);
-      alert("Alert Box Added!");
-    }
-    function addChatBox() {
-      addTextLayer("Chat Box\nUser: Hello!", "#fff", 48, 300, canvasH - 200);
-    }
-    function addFollowerGoal() {
-      addTextLayer("Followers: 982 / 1000", "#ff9500", 60, canvasW/2, 100);
-    }
-    function addDonationGoal() {
-      addTextLayer("$1,250 / $2,000", "#00ff00", 60, canvasW/2, 160);
-    }
-    function addEventList() {
-      addTextLayer("Recent Events:\n• xXCoolGamerXx followed\n• $5 from Anna", "#0ff", 40, canvasW - 300, 300);
-    }
-    function addStreamLabels() {
-      addTextLayer("LIVE ● 2h 15m ● 1.2K viewers", "#ff0066", 50, canvasW/2, 80);
-    }
-  </script>
-
+  <!-- Millicast SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@millicast/sdk@latest/dist/millicast.umd.js"></script>
   <script defer src="script.js"></script>
 </body>
 </html>
