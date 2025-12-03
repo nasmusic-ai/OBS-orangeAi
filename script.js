@@ -340,3 +340,70 @@ document.getElementById('btnTimer').onclick = addTimer;
 document.getElementById('applyRes').click();
 drawLoop();
 renderLayers();
+
+// Permission Warning System
+let permissionsGranted = false;
+
+function showPermissionWarning(onAllowCallback) {
+  if (permissionsGranted) {
+    onAllowCallback();
+    return;
+  }
+
+  document.getElementById('permWarning').style.display = 'flex';
+  
+  // Override the Allow button to run the actual permission request
+  const btn = document.getElementById('allowPermissionsBtn');
+  btn.onclick = async () => {
+    closePermWarning();
+    try {
+      // Pre-warm audio context (critical on mobile!)
+      if (!audioCtx || audioCtx.state === 'closed') {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        await audioCtx.resume();
+      }
+
+      // Trigger both permissions at once (best success rate)
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: true, 
+        audio: true 
+      });
+      
+      // Now trigger screen share (this will show system dialog)
+      // We do this after mic/cam to reduce denial rate
+      setTimeout(async () => {
+        try {
+          await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+          permissionsGranted = true;
+          alert("All permissions granted! You can now use all features.");
+          if (onAllowCallback) onAllowCallback();
+        } catch (err) {
+          alert("Screen sharing denied. Some features will be limited.");
+        }
+      }, 300);
+
+      // Stop the test stream
+      stream.getTracks().forEach(t => t.stop());
+    } catch (err) {
+      alert("Camera/Microphone denied. Please allow to use avatars & audio.");
+    }
+  };
+}
+
+function closePermWarning() {
+  document.getElementById('permWarning').style.display = 'none';
+}
+
+// Modify your existing addWebcam and addScreen functions to use the warning
+const originalAddWebcam = addWebcam;
+addWebcam = () => {
+  showPermissionWarning(originalAddWebcam);
+};
+
+const originalAddScreen = addScreen;
+addScreen = () => {
+  showPermissionWarning(() => {
+    // Small delay to ensure mic/cam already granted
+    setTimeout(originalAddScreen, 400);
+  });
+};
